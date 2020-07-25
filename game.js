@@ -1,41 +1,73 @@
-const encodedDots = new Set();
+class Selector {
+  constructor(first, last) {
+    this.value = first;
+
+    this.__defineGetter__("first", function () {
+      return first;
+    });
+    this.__defineGetter__("last", function () {
+      return last;
+    });
+  }
+
+  inc() {
+    if (this.value < this.last) {
+      this.value++;
+    } else {
+      this.value = this.first;
+    }
+    return this.value;
+  }
+
+  dec() {
+    if (this.value > this.first) {
+      this.value--;
+    } else {
+      this.value = this.last;
+    }
+    return this.value;
+  }
+}
+
+const encodedDots = new Map();
+const colors = [Color.Indigo, Color.Green, Color.Yellow];
 
 let activeColor;
+let activeColorKey;
 
-function decodeDot(encodedDot) {
-  const [color, ...coordinates] = encodedDot.split(".");
-  return [...coordinates.map(Number), color]; // color last to match the order of setDot's args
+function decodeDot([coordinates, color]) {
+  return [...coordinates.split(".").map(Number), color];
 }
 
 function create(game) {
-  activeColor = Color.Indigo;
+  activeColorKey = new Selector(0, colors.length - 1);
+  activeColor = colors[activeColorKey.value];
 }
 
 function onDotClicked(x, y) {
-  encodedDots.add(`${activeColor}.${x}.${y}`); // color first to ease decoding
+  encodedDots.set(`${x}.${y}`, activeColor);
 
-  console.log(encodedDots);
+  console.table(encodedDots);
 }
 
 function onKeyPress(direction) {
   // i want to cycle through all the available colors
 
   if (direction === Direction.Up) {
-    activeColor = Color.Green;
+    activeColor = colors[activeColorKey.inc()];
   }
 
   if (direction === Direction.Down) {
-    activeColor = Color.Yellow;
+    activeColor = colors[activeColorKey.dec()];
   }
 }
 
 function update(game) {
   for (encDot of encodedDots) {
-    const [x, y, color] = decodeDot(encDot);
-    game.setDot(x, y, color);
+    game.setDot(...decodeDot(encDot));
   }
 
-  game.setText(`UP / DOWN keys to switch color: ${activeColor}`);
+  game.setText(`▲ / ▼ to change color: ${activeColor}`);
 }
 
 const config = {
