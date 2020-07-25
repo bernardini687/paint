@@ -1,4 +1,14 @@
-const colors = [Color.Indigo, Color.Green, Color.Yellow];
+const colors = [
+  Color.Black,
+  Color.Blue,
+  Color.Gray,
+  Color.Green,
+  Color.Indigo,
+  Color.Orange,
+  Color.Red,
+  Color.Violet,
+  Color.Yellow,
+];
 const colorSelector = new Selector(0, colors.length - 1);
 const encodedDots = new Map();
 
@@ -12,8 +22,6 @@ function decodeDot([coordinates, color]) {
 
 function onDotClicked(x, y) {
   encodedDots.set(`${x}.${y}`, activeColor());
-
-  console.table(encodedDots);
 }
 
 function onKeyPress(direction) {
